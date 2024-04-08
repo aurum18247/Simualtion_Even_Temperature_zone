@@ -799,12 +799,9 @@
     </div>
 
     <!--next  Arrow	-->
-    <div id=" nav">
-        <img id="nextButton" onclick="navNext();" height="40px" src="./images/next.png" />
+    <div id="nav">
+        <img id="nextButton" onclick="navNext();" height="40px" src="./images/next.png" style="visibility: hidden;" />
     </div>
-
-    <!--Blinking Arrow	-->
-    <img class="" id="arrow" style="visibility:hidden;" src="./images/arrow.png" />
 
     <div id="copyright"> &copy;
         <script>
@@ -838,6 +835,10 @@
         }
         // COMMENT OR REMOVE ABOVE SECTION IN FINAL SUBMISSION
 
+
+        // show next button on first canvas
+        if (currentCanvas == 0)
+            document.getElementById("nextButton").style.visibility = "visible";
 
         document.getElementById(`canvas${currentCanvas}`).style.visibility = 'visible';
 
