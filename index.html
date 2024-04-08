@@ -18,22 +18,32 @@
     </script>
     <style>
         .blink {
-            animation: blink 0.5s linear infinite;
-            ;
+            text-decoration: blink;
+            animation: blink 0.5s alternate infinite ease-in-out;
+            animation-direction: alternate;
         }
 
+
         @keyframes blink {
-            0% {
-                opacity: 0;
+            from {
+                opacity: 1.0;
             }
 
-            50% {
-                display: 1;
+            to {
+                opacity: 0.0;
             }
+        }
 
-            100% {
-                display: 0;
-            }
+        .tooltip {
+            display: none;
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 5px;
+            border: 1px solid #ccc;
+            /* Adjust position to move above the box and center it */
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .note {
@@ -46,6 +56,11 @@
             z-index: 20;
             /* Adjust as needed */
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .arrow {
+            width: 50px;
+            height: 32px;
         }
 
         .reading-input {
@@ -88,8 +103,10 @@
             top: 0;
             position: absolute;
             background-color: #fff;
+            border: 1px solid #ccc;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
             z-index: 9999;
+            overflow: scroll;
         }
 
         .close-button {
@@ -137,7 +154,43 @@
                 <img src="./images/human.png" alt="Human" style="position:relative; margin-left:20px;margin-top:28px;">
 
                 <img src="./images/table.svg" height="350px" alt="Table" style="position:relative;">
+                <!-- blank spans to cover different apparatus in imag, add red border to show -->
+                <div class="instrument" style="position: absolute;
+                    top: 126px;
+                    left: 224px;
+                    width: 75px;
+                    height: 58px;"><span class="tooltip">Thermostat</span>
+                </div>
+                <div class="instrument" style="position: absolute;
+                    top: 18px;
+                    left: 321px;
+                    width: 131px;
+                    height: 167px;"><span class="tooltip">Tubular Furnace</span></div>
+                <div class="instrument" style="position: absolute;    top: 139px;
+                    right: 185px;
+                    width: 104px;
+                    height: 47px;"><span class="tooltip">Voltmeter</span></div>
+                <div class="instrument" style="position: absolute;      top: 40px;
+                    right: 83px;
+                    width: 72px;
+                    height: 144px;"><span class="tooltip">Thermocouple with Stand</span></div>
             </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+
+                    const instruments = document.getElementsByClassName('instrument');
+                    // Add event listeners to show tooltip on hover
+                    for (let i = 0; i < instruments.length; i++) {
+                        instruments[i].addEventListener('mouseover', function () {
+                            instruments[i].getElementsByTagName('span')[0].style.display = 'block';
+                        });
+
+                        instruments[i].addEventListener('mouseout', function () {
+                            instruments[i].getElementsByTagName('span')[0].style.display = 'none';
+                        });
+                    }
+                });
+            </script>
         </div>
 
         <div class="simsubscreen" id="canvas1" style="visibility: hidden;">
@@ -157,8 +210,8 @@
                     style="display: block; width: 42px; height: 16px; background:white;  position: absolute; top: 360px;left: 106px; text-align: right;">
                     000°C
                 </div>
-                <img src="./images/arrow.png" class="arrow blink"
-                    style="position: absolute;     transform: rotate(-90deg); top: 230px;left: 125px;">
+                <img src="./images/arrow.png" class="arrow blink" style="position: absolute;     transform: rotate(-90deg); top: 312px;
+                    left: 132px;">
 
                 <script>
                     document.addEventListener('DOMContentLoaded', function () {
@@ -247,8 +300,8 @@
                     <p>Click on the stand </p>
                 </div>
 
-                <img src="./images/arrow.png" class="arrow blink" style="position: absolute; transform: rotate(-90deg);     top: 135px;
-                    right: 25px;">
+                <img src="./images/arrow.png" class="arrow blink" style="position: absolute; transform: rotate(-90deg); top: 160px;
+                    right: 32px;">
             </div>
             <script>
                 // Define right readings for Step 2
@@ -293,6 +346,7 @@
                             // Rotate arrow and show it
                             step2_arrow.style.display = 'block';
                             step2_arrow.style.transform = 'rotate(0deg)';
+                            step2_arrow.style.top = '100px';
                         }, 1000);
                     }, { once: true });
 
@@ -411,8 +465,8 @@
                     <p>Click on the stand </p>
                 </div>
 
-                <img src="./images/arrow.png" class="arrow blink" style="position: absolute; transform: rotate(-90deg); top: 135px;
-                    left: 25px;">
+                <img src="./images/arrow.png" class="arrow blink" style="position: absolute; transform: rotate(-90deg); top: 160px;
+                    left: 32px;">
             </div>
             <script>
                 // Define right readings for Step 2
@@ -455,6 +509,7 @@
 
                             // Rotate arrow and show it
                             step3_arrow.style.display = 'block';
+                            step3_arrow.style.top = '100px';
                             step3_arrow.style.transform = 'rotate(180deg)';
                         }, 1000);
                     }, { once: true });
@@ -540,8 +595,7 @@
             <div class="calibration-popup" id="calibrationPopup">
                 <div class="calibration-content">
                     <button class="close-button" id="closeCalibrationButton">Close</button>
-                    <img src="./images/calibration_chart.jpeg" width="100%" alt="Calibration Chart"
-                        id="calibrationChartImage">
+                    <img src="./images/calibration_chart.jpeg" alt="Calibration Chart" id="calibrationChartImage">
                 </div>
             </div>
 
@@ -610,11 +664,21 @@
                         const averageReading = averageReadings[i];
 
                         // Insert data into cells
+
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.placeholder = 'Enter temperature'
+                        input.style.width = '80px';
+
                         const cellsData = [distance, leftReading, rightReading, averageReading, ''];
                         cellsData.forEach(cellData => {
                             const cell = row.insertCell();
                             cell.textContent = cellData;
                         });
+
+                        // Add temperature cell
+                        const temperatureCell = row.cells[4];
+                        temperatureCell.appendChild(input);
                     }
 
                     return table;
@@ -633,22 +697,9 @@
                         const temperatureCell = row.cells[4]; // Assuming temperature is in the 5th column
                         temperatureCell.classList.add('editable'); // Add a class for styling
 
-                        // Add pencil icon to indicate editability
-                        temperatureCell.innerHTML = `<div class="editable-indicator"> ✏️<span style="font-size:8px; font-colot:grey;">click to enter<span></div> ${temperatureCell.textContent}`;
-
                         temperatureCell.addEventListener('click', () => {
-                            // Create input element
-                            const input = document.createElement('input');
-                            input.type = 'number';
-                            input.value = temperatureCell.textContent.trim();
-                            input.style.width = '80px';
 
-                            // Replace cell content with input element
-                            temperatureCell.textContent = '';
-                            temperatureCell.appendChild(input);
-
-                            // Focus on input element
-                            input.focus();
+                            input = temperatureCell.querySelector('input');
 
                             // Add event listener for input change
                             input.addEventListener('change', () => {
@@ -691,11 +742,9 @@
         <!-- Result -->
         <div class="simsubscreen" id="canvas5" style="visibility:hidden">
             <h2 id="step3_titlestep" class="incanvas">OBSERVATION </h2>
-            <!-- <span class="circlebg" id="step3_stepnumber">&nbsp;4&nbsp;</span> -->
-            <!-- <p id="step3_pumptext" class="steptext" style="font-family:verdana; font-size:14px;">Insert a standard
-                thermocouple into the <strong>left</strong> of furnace and note the readings starting from center of
-                furnace and moving
-                out 2cms each time. -->
+            <p id="step3_pumptext" class="steptext" style="font-family:verdana; font-size:14px;">Identify the
+                <strong>Even
+                    Temperature Zone</strong> using the graph plotted below.
             </p>
             <div class="main" style="display: flex; align-items: center; padding: 16px 4px; height: 80%;">
                 <canvas id="lineChart"></canvas>
@@ -746,7 +795,7 @@
 
     <!--next  Arrow	-->
     <div id=" nav">
-        <img id="nextButton" onclick="navNext();" height="40px" src="./images/next.svg" />
+        <img id="nextButton" onclick="navNext();" height="40px" src="./images/next.png" />
     </div>
 
     <!--Blinking Arrow	-->
@@ -763,6 +812,28 @@
     <script>
         const totalCanvas = 5;
         let currentCanvas = 0;
+
+
+        // COMMENT OR REMOVE THIS SECTION IN FINAL SUBMISSION
+        const queryParams = new URLSearchParams(window.location.search);
+        if (queryParams.has('canvas')) {
+            const canvasValue = parseInt(queryParams.get('canvas'));
+            if (!isNaN(canvasValue) && canvasValue >= 0 && canvasValue <= 5) {
+                currentCanvas = canvasValue;
+
+                if (currentCanvas == 5) {
+                    alert('You need fill the values on page 4 to view the actual result. For Review purpose, we have set the values to default.');
+                    generateLineGraph(temperatureValues)
+                }
+            } else {
+                currentCanvas = 0;
+            }
+        } else {
+            currentCanvas = 0;
+        }
+        // COMMENT OR REMOVE ABOVE SECTION IN FINAL SUBMISSION
+
+
         document.getElementById(`canvas${currentCanvas}`).style.visibility = 'visible';
 
         function navNext() {
